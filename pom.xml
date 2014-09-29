@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>cz.tomaskypta.tools.langtool</groupId>
+    <artifactId>langtool-parent</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>android-lang-tool</name>
+    <description>Utility tool for exporting Android string resources to excel and importing them back to
+        project after translation.
+    </description>
+    <url>https://github.com/tomik-dev/android-lang-tool</url>
+
+    <scm>
+        <connection>scm:git:https://github.com/tomik-dev/android-lang-tool.git</connection>
+        <developerConnection>scm:git:https://github.com/tomik-dev/android-lang-tool.git</developerConnection>
+        <url>https://github.com/tomik-dev/android-lang-tool</url>
+        <tag>HEAD</tag>
+    </scm>
+
+    <issueManagement>
+        <system>Github</system>
+        <url>https://github.com/tomik-dev/android-lang-tool/issues</url>
+    </issueManagement>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <java.version>1.7</java.version>
+    </properties>
+
+    <modules>
+        <module>lang-tool</module>
+    </modules>
+</project>

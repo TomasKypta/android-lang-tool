@@ -3,8 +3,15 @@ android-lang-tool
 
 Tool for exporting and importing Android string resources for translation.
 
-It exports Android string resources to Excel and imports them back to the project after translation.
-The tool scans Android project and exports strings, by default from strings.xml. Additional resources can be specified.
+Supported resources:
+* strings
+* string arrays
+* plurals
+
+It's [AndroidLangTool](https://github.com/hamsterksu/AndroidLangTool) on steroids.
+
+The tool exports Android string resources to Excel and imports them back to the project after translation.
+It scans Android project and exports strings, by default from strings.xml. Additional resources can be specified.
 All the resources are concatenated in a single Excel file.
 
 Xml comments are supported 

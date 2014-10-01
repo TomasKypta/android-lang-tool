@@ -18,6 +18,7 @@ import org.xml.sax.SAXException;
 public class ToolExport {
 
     private static final String DIR_VALUES = "values";
+    private static final String[] POTENTIAL_RES_DIRS = new String[]{"res", "src/main/res"};
 
     private DocumentBuilder builder;
     private File outExcelFile;
@@ -76,6 +77,10 @@ public class ToolExport {
 
     private void export(File project) throws SAXException, IOException {
         File res = findResourceDir(project);
+        if (res == null) {
+            System.err.println("Cannot find resource directory.");
+            return;
+        }
         for (File dir : res.listFiles()) {
             if (!dir.isDirectory() || !dir.getName().startsWith(DIR_VALUES)) {
                 continue;
@@ -94,7 +99,17 @@ public class ToolExport {
     }
 
     private File findResourceDir(File project) {
-        return new File(project, "res");
+        List<File> availableResDirs = new LinkedList<File>();
+        for (String potentialResDir : POTENTIAL_RES_DIRS) {
+            File res = new File(project, potentialResDir);
+            if (res.exists()) {
+                availableResDirs.add(res);
+            }
+        }
+        if (!availableResDirs.isEmpty()) {
+            return availableResDirs.get(0);
+        }
+        return null;
     }
 
     private void exportLang(String lang, File valueDir) throws IOException, SAXException {

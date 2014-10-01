@@ -38,7 +38,7 @@ public class Tool {
         try {
             new JCommander(parsedArgs, args);
         } catch (ParameterException e) {
-            System.out.println(e.getMessage());
+            System.err.println(e.getMessage());
             printHelp();
             return;
         }

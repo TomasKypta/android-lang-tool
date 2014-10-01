@@ -89,6 +89,7 @@ public class ToolImport {
         int i = 1;
         while (cells.hasNext()) {
             String lang = cells.next().toString();
+            // TODO add language mapping (erasure of unnecessary country codes)
             generateLang(sheet, lang, i);
             i++;
         }
@@ -126,6 +127,7 @@ public class ToolImport {
                 continue;
             }
 
+            // TODO handle also string-array
             int plurarIndex = key.indexOf("#");
             if (plurarIndex == -1) {//string
                 Cell valueCell = row.getCell(column);

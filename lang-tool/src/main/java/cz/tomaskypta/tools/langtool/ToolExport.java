@@ -259,6 +259,7 @@ public class ToolExport {
 
                 sheet.addMergedRegion(new CellRangeAddress(row.getRowNum(), row.getRowNum(), 0, 255));
             }
+            // TODO handle also string-array
             if ("string".equals(item.getNodeName())) {
                 Node translatable = item.getAttributes().getNamedItem("translatable");
                 if (translatable != null && "false".equals(translatable.getNodeValue())) {

@@ -132,7 +132,9 @@ public class ToolImport {
         Iterator<Row> iterator = sheet.rowIterator();
         iterator.next();//ignore first row;
         Element pluralsNode = null;
+        Element stringArrayNode = null;
         String plurarName = null;
+        String arrayName = null;
 
         while (iterator.hasNext()) {
             HSSFRow row = (HSSFRow)iterator.next();
@@ -157,23 +159,10 @@ public class ToolImport {
 
             // TODO handle also string-array
             int plurarIndex = key.indexOf("#");
-            if (plurarIndex == -1) {//string
-                Cell valueCell = row.getCell(column);
-                if (valueCell == null) {
-                    addEmptyKeyValue(dom, root, key);
-                    continue;
-                }
-                String value = valueCell.toString();// value
+            int arrayIndex = key.indexOf("[");
 
-                if (value.isEmpty()) {
-                    addEmptyKeyValue(dom, root, key);
-                } else {
-                    Element node = dom.createElement("string");
-                    node.setAttribute("name", key);
-                    node.setTextContent(value);
-                    root.appendChild(node);
-                }
-            } else {
+            if (plurarIndex >= 0) {
+                // plurals
                 Cell valueCell = row.getCell(column);
                 String value = "";
                 if (valueCell != null) {
@@ -193,6 +182,47 @@ public class ToolImport {
                 pluralsNode.appendChild(item);
 
                 root.appendChild(pluralsNode);
+            } else if (arrayIndex >= 0) {
+                // string-array
+                Cell valueCell = row.getCell(column);
+                String value = "";
+                if (valueCell != null) {
+                    value = valueCell.toString();// value
+                }
+                String arrayNameNew = key.substring(0, arrayIndex);
+                // we don't really need the index
+//                String tmp = key.substring(arrayIndex+1);
+//                int index = Integer.parseInt(tmp.substring(0, tmp.indexOf("]")));
+
+                // it's not bullet-proof, but for the time being good enough
+                if (!arrayNameNew.equals(arrayName)) {
+                    arrayName = arrayNameNew;
+                    stringArrayNode = dom.createElement("string-array");
+                    stringArrayNode.setAttribute("name", arrayName);
+                }
+                Element item = dom.createElement("item");
+                item.setTextContent(value);
+
+                stringArrayNode.appendChild(item);
+
+                root.appendChild(stringArrayNode);
+            } else {
+                //string
+                Cell valueCell = row.getCell(column);
+                if (valueCell == null) {
+                    addEmptyKeyValue(dom, root, key);
+                    continue;
+                }
+                String value = valueCell.toString();// value
+
+                if (value.isEmpty()) {
+                    addEmptyKeyValue(dom, root, key);
+                } else {
+                    Element node = dom.createElement("string");
+                    node.setAttribute("name", key);
+                    node.setTextContent(value);
+                    root.appendChild(node);
+                }
             }
 
         }

@@ -13,14 +13,13 @@ Missing traslations have red background in the xls file.
 To build the application execute: `mvn package`
 To run the application execute: `java -jar langtools-VERSION-jar-with-dependencies.jar`
 
-Tool has 3 modes:
+Tool has 2 modes:
 * exporting to xls
-* importing from xls with optional qualifier mapping
-* importing from xls with splitting xls into multiple separate xls files
+* importing from xls
  
 ## Exporting
 `
-params: -e <project dir> <output file> <list of additional resources>
+params: -e <project dir> [-o <output file>] [--additional-resources <list of additional resources>]
 `
 
 **project dir** - path to the Android project 
@@ -30,24 +29,20 @@ params: -e <project dir> <output file> <list of additional resources>
 ## Importing
 
 `
-params: -i <input file> [-m <mapping file>]
-`
-
-**input file** - name of the Excel file for importing into the project
-**mapping file** - Optional file for mapping resource qualifier into another. Typically for omitting country 
-specifier (e.g. -rCZ). 
-
-
-## Importing with splitting
-
-`
-params: -s <input file> <splitting config file>
+params: -i <input file> [-s <splitting config file>] [-m <mapping file>]
 `
 
 **input file** - name of the Excel file for importing into the project
 **splitting config file** - Excel file containing splitting info
+**mapping file** - Optional file for mapping resource qualifier into another. Typically for omitting country 
+specifier (e.g. convert 'cs-rCZ' into 'cs'). 
 
 ### Format of splitting configuration file
 
 * The first column contains row index of the beginning of a subfile.
 * The second column contains name of the output subfile. 
+
+### Format of mapping file
+
+* The first column contains 'from value'
+* The second column contains 'to value'

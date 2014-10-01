@@ -63,6 +63,9 @@ public class ToolExport {
     }
 
     private void parseExtraResources(String extraResources) {
+        if (extraResources == null) {
+            return;
+        }
         for (String resName : extraResources.split(":")) {
             if (!resName.endsWith(".xml")) {
                 resName = resName + ".xml";

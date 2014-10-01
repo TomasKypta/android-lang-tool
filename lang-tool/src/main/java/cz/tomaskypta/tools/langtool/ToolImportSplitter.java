@@ -24,15 +24,7 @@ public class ToolImportSplitter {
     private TreeMap<Integer, String> mSplittingMap;
     private File mIntermediateXlsDir;
 
-    public static void main(String[] args) throws IOException, ParserConfigurationException, TransformerException {
-        if (args == null || args.length == 0) {
-            System.out.println("File name is missed");
-            return;
-        }
-        run(args[0], args.length < 2 ? null : args[1]);
-    }
-
-    public static void run(String input, String config) throws IOException,
+    public static void run(String input, String config, String mapping) throws IOException,
         ParserConfigurationException, TransformerException {
         if (input == null || "".equals(input)) {
             System.out.println("File name is missed");
@@ -40,7 +32,7 @@ public class ToolImportSplitter {
         }
         if (config == null || "".equals(config)) {
             System.out.println("No config, no splitting");
-            ToolImport.run(input);
+            ToolImport.run(input, mapping);
             return;
         }
 
@@ -59,7 +51,8 @@ public class ToolImportSplitter {
 
         for (String file : tool.mSplittingMap.values()) {
             File outputFile = new File(tool.mIntermediateXlsDir, file);
-            ToolImport.run(outputFile.getPath(), outputFile.getName().substring(0, outputFile.getName().indexOf('.')));
+            ToolImport.run(outputFile.getPath(), outputFile.getName().substring(0, outputFile.getName().indexOf('.'))
+                , mapping);
         }
     }
 

@@ -277,7 +277,7 @@ public class ToolExport {
 
                 sheet.addMergedRegion(new CellRangeAddress(row.getRowNum(), row.getRowNum(), 0, 255));
             }
-            // TODO handle also string-array
+
             if ("string".equals(item.getNodeName())) {
                 Node translatable = item.getAttributes().getNamedItem("translatable");
                 if (translatable != null && "false".equals(translatable.getNodeValue())) {
@@ -322,7 +322,26 @@ public class ToolExport {
                         itemCell.setCellValue(plurarItem.getTextContent());
                     }
                 }
+            } else if ("string-array".equals(item.getNodeName())) {
+                String key = item.getAttributes().getNamedItem("name").getNodeValue();
+                NodeList arrayItems = item.getChildNodes();
+                for (int j = 0, k = 0; j < arrayItems.getLength(); j++) {
+                    Node arrayItem = arrayItems.item(j);
+                    if ("item".equals(arrayItem.getNodeName())) {
+                        String itemKey = key + "[" + k++ + "]";
+                        keys.put(itemKey, rowIndex);
 
+                        HSSFRow itemRow = sheet.createRow(rowIndex++);
+
+                        HSSFCell itemCell = itemRow.createCell(0);
+                        itemCell.setCellValue(itemKey);
+                        itemCell.setCellStyle(keyStyle);
+
+                        itemCell = itemRow.createCell(1);
+                        itemCell.setCellStyle(textStyle);
+                        itemCell.setCellValue(arrayItem.getTextContent());
+                    }
+                }
             }
         }
 
@@ -390,6 +409,27 @@ public class ToolExport {
 
                         HSSFCell cell = row.createCell(lastColumnIdx);
                         cell.setCellValue(plurarItem.getTextContent());
+                        cell.setCellStyle(textStyle);
+                    }
+                }
+            } else if ("string-array".equals(item.getNodeName())) {
+                String key = item.getAttributes().getNamedItem("name").getNodeValue();
+                NodeList arrayItems = item.getChildNodes();
+                for (int j = 0, k = 0; j < arrayItems.getLength(); j++) {
+                    Node arrayItem = arrayItems.item(j);
+                    if ("item".equals(arrayItem.getNodeName())) {
+                        String itemKey = key + "[" + k++ + "]";
+                        Integer rowIndex = keysIndex.get(itemKey);
+                        if (rowIndex == null) {
+                            out.println("\t" + key + " - row does not exist");
+                            continue;
+                        }
+                        missedKeys.remove(key);
+
+                        HSSFRow itemRow = sheet.getRow(rowIndex);
+
+                        HSSFCell cell = itemRow.createCell(lastColumnIdx);
+                        cell.setCellValue(arrayItem.getTextContent());
                         cell.setCellStyle(textStyle);
                     }
                 }

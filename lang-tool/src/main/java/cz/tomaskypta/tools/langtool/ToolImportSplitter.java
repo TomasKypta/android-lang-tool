@@ -51,6 +51,7 @@ public class ToolImportSplitter {
 
         for (String file : tool.mSplittingMap.values()) {
             File outputFile = new File(tool.mIntermediateXlsDir, file);
+            System.out.println("Importing file: " + file);
             ToolImport.run(outputFile.getPath(), outputFile.getName().substring(0, outputFile.getName().indexOf('.'))
                 , mapping);
         }
@@ -61,6 +62,9 @@ public class ToolImportSplitter {
         Iterator<Row> it = sheetConfig.rowIterator();
         while (it.hasNext()) {
             Row row = it.next();
+            if (row == null || row.getCell(0) == null || row.getCell(1) == null) {
+                return;
+            }
             mSplittingMap.put((int)row.getCell(0).getNumericCellValue(), row.getCell(1).getStringCellValue());
         }
     }
@@ -68,6 +72,7 @@ public class ToolImportSplitter {
     private void split(HSSFSheet inSheet) throws IOException, TransformerException {
         Row inTitleRow = inSheet.getRow(0);
         for (Map.Entry<Integer, String> entry : mSplittingMap.entrySet()) {
+            System.out.println("Splitting into file: " + entry.getValue());
             File outputFile = new File(mIntermediateXlsDir, entry.getValue());
             FileOutputStream fos = null;
 
@@ -81,7 +86,7 @@ public class ToolImportSplitter {
                 Integer actFileStart = entry.getKey();
                 Integer nextFileStart = mSplittingMap.higherKey(entry.getKey());
                 if (nextFileStart == null) {
-                    nextFileStart = inSheet.getLastRowNum() + 1;
+                    nextFileStart = inSheet.getLastRowNum() + 2;
                 }
 
                 copyRowRange(inSheet, outSheet, actFileStart, nextFileStart);
@@ -103,7 +108,7 @@ public class ToolImportSplitter {
     private void copyRowRange(HSSFSheet inSheet, HSSFSheet outSheet, int rowStart, int rowEnd) {
         for (int rowIdx = rowStart, outRowIdx = 1; rowIdx < rowEnd; rowIdx++, outRowIdx++) {
             HSSFRow outRow = outSheet.createRow(outRowIdx);
-            HSSFRow inRow = inSheet.getRow(rowIdx);
+            HSSFRow inRow = inSheet.getRow(rowIdx-1);
             copyRow(inRow, outRow);
         }
     }

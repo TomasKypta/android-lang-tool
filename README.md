@@ -15,7 +15,7 @@ To run the application execute: `java -jar langtools-VERSION-jar-with-dependenci
 
 Tool has 3 modes:
 * exporting to xls
-* importing from xls
+* importing from xls with optional qualifier mapping
 * importing from xls with splitting xls into multiple separate xls files
  
 ## Exporting
@@ -30,10 +30,13 @@ params: -e <project dir> <output file> <list of additional resources>
 ## Importing
 
 `
-params: -i <input file>
+params: -i <input file> [-m <mapping file>]
 `
 
 **input file** - name of the Excel file for importing into the project
+**mapping file** - Optional file for mapping resource qualifier into another. Typically for omitting country 
+specifier (e.g. -rCZ). 
+
 
 ## Importing with splitting
 

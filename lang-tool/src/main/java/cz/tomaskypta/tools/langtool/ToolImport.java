@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.HashMap;
 import java.util.Iterator;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -28,6 +29,7 @@ public class ToolImport {
     private DocumentBuilder builder;
     private File outResDir;
     private PrintStream out;
+    private HashMap<String, String> mMapping;
 
     public ToolImport(PrintStream out) throws ParserConfigurationException {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -47,7 +49,12 @@ public class ToolImport {
         run(input, null);
     }
 
-    public static void run(String input, String outputName) throws IOException,
+    public static void run(String input, String mappingFile) throws IOException, ParserConfigurationException,
+        TransformerException {
+        run(input, null, mappingFile);
+    }
+
+    public static void run(String input, String outputName, String mappingFile) throws IOException,
         ParserConfigurationException, TransformerException {
         if (input == null || "".equals(input)) {
             System.out.println("File name is missed");
@@ -56,6 +63,12 @@ public class ToolImport {
         HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(new File(input)));
         HSSFSheet sheet = wb.getSheetAt(0);
 
+        HSSFSheet sheetMapping = null;
+        if (mappingFile != null) {
+            HSSFWorkbook wbMapping = new HSSFWorkbook(new FileInputStream(new File(mappingFile)));
+            sheetMapping = wbMapping.getSheetAt(0);
+        }
+
         if (outputName == null || "".equals(outputName)) {
             outputName = sheet.getSheetName();
         }
@@ -63,6 +76,7 @@ public class ToolImport {
         ToolImport tool = new ToolImport(null);
         tool.outResDir = new File("out/" + outputName + "/res");
         tool.outResDir.mkdirs();
+        tool.prepareMapping(sheetMapping);
         tool.parse(sheet);
     }
 
@@ -82,6 +96,18 @@ public class ToolImport {
         tool.parse(sheet);
     }
 
+    private void prepareMapping(HSSFSheet sheetMapping) {
+        if (sheetMapping == null) {
+            return;
+        }
+        mMapping = new HashMap<String, String>();
+        Iterator<Row> it = sheetMapping.rowIterator();
+        while (it.hasNext()) {
+            Row row = it.next();
+            mMapping.put(row.getCell(0).getStringCellValue(), row.getCell(1).getStringCellValue());
+        }
+    }
+
     private void parse(HSSFSheet sheet) throws IOException, TransformerException {
         Row row = sheet.getRow(0);
         Iterator<Cell> cells = row.cellIterator();
@@ -89,7 +115,9 @@ public class ToolImport {
         int i = 1;
         while (cells.hasNext()) {
             String lang = cells.next().toString();
-            // TODO add language mapping (erasure of unnecessary country codes)
+            if (mMapping != null && mMapping.containsKey(lang)) {
+                lang = mMapping.get(lang);
+            }
             generateLang(sheet, lang, i);
             i++;
         }

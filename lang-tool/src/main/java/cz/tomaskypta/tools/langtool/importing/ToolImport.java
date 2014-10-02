@@ -155,7 +155,11 @@ public class ToolImport {
                 continue;
             }
 
-            // TODO handle also string-array
+            if (mConfig.isIgnoredKey(key)) {
+                root.appendChild(dom.createTextNode(""));
+                continue;
+            }
+
             int plurarIndex = key.indexOf("#");
             int arrayIndex = key.indexOf("[");
 
@@ -179,7 +183,7 @@ public class ToolImport {
                 if (mConfig.unescapeFirst) {
                     value = EscapingUtils.unescapeQuotes(value);
                 }
-                if (mConfig.escapeKey(key)) {
+                if (mConfig.isEscapedKey(key)) {
                     value = EscapingUtils.escape(value);
                 }
                 item.setTextContent(value);
@@ -210,7 +214,7 @@ public class ToolImport {
                 if (mConfig.unescapeFirst) {
                     value = EscapingUtils.unescapeQuotes(value);
                 }
-                if (mConfig.escapeKey(key)) {
+                if (mConfig.isEscapedKey(key)) {
                     value = EscapingUtils.escape(value);
                 }
                 item.setTextContent(value);
@@ -236,7 +240,7 @@ public class ToolImport {
                     if (mConfig.unescapeFirst) {
                         value = EscapingUtils.unescapeQuotes(value);
                     }
-                    if (mConfig.escapeKey(key)) {
+                    if (mConfig.isEscapedKey(key)) {
                         value = EscapingUtils.escape(value);
                     }
                     node.setTextContent(value);

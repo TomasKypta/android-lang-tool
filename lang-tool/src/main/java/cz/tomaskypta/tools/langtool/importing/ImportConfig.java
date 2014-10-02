@@ -25,9 +25,12 @@ public class ImportConfig {
     public String escapingConfigFile;
     private Set<String> escapedSet;
     public boolean unescapeFirst;
+    public String ignoreListFile;
+    private Set<String> ignoredSet;
 
     public ImportConfig() {
         this.escapedSet = new HashSet<String>();
+        this.ignoredSet = new HashSet<String>();
     }
 
     public ImportConfig(ImportConfig other) {
@@ -38,9 +41,11 @@ public class ImportConfig {
         this.outputFileName = other.outputFileName;
         this.escapedSet = new HashSet<String>(other.escapedSet);
         this.unescapeFirst = other.unescapeFirst;
+        this.ignoreListFile = other.ignoreListFile;
+        this.ignoredSet = new HashSet<String>(other.ignoredSet);
     }
 
-    public Boolean escapeKey(String key) {
+    public Boolean isEscapedKey(String key) {
         return escapedSet.contains(key);
     }
 
@@ -61,6 +66,35 @@ public class ImportConfig {
                     return;
                 }
                 escapedSet.add(row.getCell(0).getStringCellValue());
+            }
+        } catch (FileNotFoundException e) {
+
+        } catch (IOException e) {
+
+        }
+    }
+
+    public Boolean isIgnoredKey(String key) {
+        return ignoredSet.contains(key);
+    }
+
+    public void setIgnoredList(String ignoredListFile) {
+        this.ignoreListFile = ignoredListFile;
+        if (ignoredListFile == null) {
+            return;
+        }
+        ignoredSet.clear();
+
+        try {
+            HSSFWorkbook wbEscaping = new HSSFWorkbook(new FileInputStream(new File(this.ignoreListFile)));
+            HSSFSheet sheetEscaping = wbEscaping.getSheetAt(0);
+            Iterator<Row> it = sheetEscaping.rowIterator();
+            while (it.hasNext()) {
+                Row row = it.next();
+                if (row == null || row.getCell(0) == null) {
+                    return;
+                }
+                ignoredSet.add(row.getCell(0).getStringCellValue());
             }
         } catch (FileNotFoundException e) {
 

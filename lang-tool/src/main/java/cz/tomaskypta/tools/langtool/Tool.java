@@ -39,6 +39,8 @@ public class Tool {
         @Parameter(names = "--unescape-first", description = "For unescaping string when  importing. Happend " +
             "before escaping. Useful when strings are unintionally escaped (e.g. by an error of translation agency).")
         boolean unescapeFirst;
+        @Parameter(names = "--ignore-list", description = "List of ignored keys.")
+        String ignoreListFile;
     }
 
     public static void main(String[] args) throws IOException, ParserConfigurationException, TransformerException, SAXException {
@@ -69,6 +71,7 @@ public class Tool {
             config.splittingConfigFile = parsedArgs.splittingConfigFile;
             config.setEscapingConfig(parsedArgs.escapingConfigFile);
             config.unescapeFirst = parsedArgs.unescapeFirst;
+            config.setIgnoredList(parsedArgs.ignoreListFile);
 
             // importing
             if (parsedArgs.splittingConfigFile != null) {
@@ -87,6 +90,6 @@ public class Tool {
         System.out.println("\texport: -e <project dir> [-o <output file>] [--additional-resources <colon separated " +
             "list of additional resources>]");
         System.out.println("\timport: -i <input file> [-s <splitting config>] [-m <mapping file>] [--escaping-config " +
-            "<escaping config file>] [--unescape-before-escaping]");
+            "<escaping config file>] [--unescape-before-escaping] [--ignore-list <ingored list file>]");
     }
 }

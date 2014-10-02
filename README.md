@@ -37,7 +37,7 @@ params: -e <project dir> [-o <output file>] [--additional-resources <list of add
 
 `
 params: -i <input file> [-s <splitting config file>] [-m <mapping file>] [--escaping-config <escaping config file>] 
-[--unescape-first]
+[--unescape-first] [--ignore-list <ingored list file>]
 `
 
 **input file** - name of the Excel file for importing into the project
@@ -48,6 +48,7 @@ specifier (e.g. convert 'cs-rCZ' into 'cs').
 output.
 **unescape-first** - Optional flag to denote that we want to unescape the strings before importing (and before 
 optional escaping).
+**ingored list file** - Optional flag to denote keys that are ignored.
 
 ### Format of splitting configuration file
 

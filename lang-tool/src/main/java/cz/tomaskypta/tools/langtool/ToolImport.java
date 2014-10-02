@@ -30,6 +30,7 @@ public class ToolImport {
     private File outResDir;
     private PrintStream out;
     private HashMap<String, String> mMapping;
+    private String mOutputFileName;
 
     public ToolImport(PrintStream out) throws ParserConfigurationException {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -46,20 +47,23 @@ public class ToolImport {
     }
 
     public static void run(String input) throws IOException, ParserConfigurationException, TransformerException {
-        run(input, null);
+        run(input, null, null);
     }
 
-    public static void run(String input, String mappingFile) throws IOException, ParserConfigurationException,
+    public static void run(String input, String mappingFile, String outputFileName) throws IOException,
+        ParserConfigurationException,
         TransformerException {
-        run(input, null, mappingFile);
+        run(input, null, mappingFile, outputFileName);
     }
 
-    public static void run(String input, String outputName, String mappingFile) throws IOException,
+    public static void run(String input, String outputName, String mappingFile,
+                           String outputFileName) throws IOException,
         ParserConfigurationException, TransformerException {
         if (input == null || "".equals(input)) {
             System.out.println("File name is missed");
             return;
         }
+
         HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(new File(input)));
         HSSFSheet sheet = wb.getSheetAt(0);
 
@@ -73,9 +77,14 @@ public class ToolImport {
             outputName = sheet.getSheetName();
         }
 
+        if (outputFileName == null) {
+            outputFileName = "strings.xml";
+        }
+
         ToolImport tool = new ToolImport(null);
         tool.outResDir = new File("out/" + outputName + "/res");
         tool.outResDir.mkdirs();
+        tool.mOutputFileName = outputFileName;
         tool.prepareMapping(sheetMapping);
         tool.parse(sheet);
     }
@@ -123,7 +132,8 @@ public class ToolImport {
         }
     }
 
-    private void generateLang(HSSFSheet sheet, String lang, int column) throws IOException, TransformerException {
+    private void generateLang(HSSFSheet sheet, String lang, int column) throws IOException,
+        TransformerException {
 
         Document dom = builder.newDocument();
         Element root = dom.createElement("resources");
@@ -250,7 +260,7 @@ public class ToolImport {
         transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 
         DOMSource source = new DOMSource(doc);
-        StreamResult result = new StreamResult(new File(dir, "strings.xml"));
+        StreamResult result = new StreamResult(new File(dir, mOutputFileName));
 
         transformer.transform(source, result);
     }

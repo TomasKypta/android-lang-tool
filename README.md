@@ -48,6 +48,7 @@ specifier (e.g. convert 'cs-rCZ' into 'cs').
 
 * The first column contains row index of the beginning of a subfile.
 * The second column contains name of the output subfile. 
+* The third optional column contains name of the output resource file. The default name is "strings.xml".
 
 ### Format of mapping file
 

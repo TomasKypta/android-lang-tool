@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
@@ -22,6 +23,7 @@ import org.apache.poi.ss.usermodel.Row;
 public class ToolImportSplitter {
 
     private TreeMap<Integer, String> mSplittingMap;
+    private HashMap<String, String> mOutputFileNames;
     private File mIntermediateXlsDir;
 
     public static void run(String input, String config, String mapping) throws IOException,
@@ -32,7 +34,7 @@ public class ToolImportSplitter {
         }
         if (config == null || "".equals(config)) {
             System.out.println("No config, no splitting");
-            ToolImport.run(input, mapping);
+            ToolImport.run(input, mapping, null);
             return;
         }
 
@@ -53,19 +55,24 @@ public class ToolImportSplitter {
             File outputFile = new File(tool.mIntermediateXlsDir, file);
             System.out.println("Importing file: " + file);
             ToolImport.run(outputFile.getPath(), outputFile.getName().substring(0, outputFile.getName().indexOf('.'))
-                , mapping);
+                , mapping, tool.mOutputFileNames.get(file));
         }
     }
 
     private void prepareSplittingMap(HSSFSheet sheetConfig) throws IOException, TransformerException {
         mSplittingMap = new TreeMap<Integer, String>();
+        mOutputFileNames = new HashMap<String, String>();
         Iterator<Row> it = sheetConfig.rowIterator();
         while (it.hasNext()) {
             Row row = it.next();
             if (row == null || row.getCell(0) == null || row.getCell(1) == null) {
                 return;
             }
-            mSplittingMap.put((int)row.getCell(0).getNumericCellValue(), row.getCell(1).getStringCellValue());
+            String splitName = row.getCell(1).getStringCellValue();
+            mSplittingMap.put((int)row.getCell(0).getNumericCellValue(), splitName);
+            if (row.getCell(2) != null) {
+                mOutputFileNames.put(splitName, row.getCell(2).getStringCellValue());
+            }
         }
     }
 

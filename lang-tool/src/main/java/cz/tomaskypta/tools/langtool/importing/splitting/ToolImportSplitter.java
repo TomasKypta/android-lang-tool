@@ -1,4 +1,4 @@
-package cz.tomaskypta.tools.langtool;
+package cz.tomaskypta.tools.langtool.importing.splitting;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -11,6 +11,9 @@ import java.util.TreeMap;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import cz.tomaskypta.tools.langtool.importing.ImportConfig;
+import cz.tomaskypta.tools.langtool.importing.ToolImport;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -26,22 +29,28 @@ public class ToolImportSplitter {
     private HashMap<String, String> mOutputFileNames;
     private File mIntermediateXlsDir;
 
-    public static void run(String input, String config, String mapping) throws IOException,
+    public static void run(SplittingConfig config) throws IOException,
         ParserConfigurationException, TransformerException {
-        if (input == null || "".equals(input)) {
-            System.out.println("File name is missed");
-            return;
-        }
-        if (config == null || "".equals(config)) {
-            System.out.println("No config, no splitting");
-            ToolImport.run(input, mapping, null);
+        if (config == null) {
+            System.err.println("Cannot split, missing config");
             return;
         }
 
-        HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(new File(input)));
+        if (StringUtils.isEmpty(config.inputFile)) {
+            System.err.println("Cannot split, missing input file");
+            return;
+        }
+
+        if (StringUtils.isEmpty(config.splittingConfigFile)) {
+            System.err.println("Cannot split, missing splitting config. Importing instead.");
+            ToolImport.run(config);
+            return;
+        }
+
+        HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(new File(config.inputFile)));
         HSSFSheet sheet = wb.getSheetAt(0);
 
-        HSSFWorkbook wbConfig = new HSSFWorkbook(new FileInputStream(new File(config)));
+        HSSFWorkbook wbConfig = new HSSFWorkbook(new FileInputStream(new File(config.splittingConfigFile)));
         HSSFSheet sheetConfig = wbConfig.getSheetAt(0);
 
         ToolImportSplitter tool = new ToolImportSplitter();
@@ -54,8 +63,12 @@ public class ToolImportSplitter {
         for (String file : tool.mSplittingMap.values()) {
             File outputFile = new File(tool.mIntermediateXlsDir, file);
             System.out.println("Importing file: " + file);
-            ToolImport.run(outputFile.getPath(), outputFile.getName().substring(0, outputFile.getName().indexOf('.'))
-                , mapping, tool.mOutputFileNames.get(file));
+
+            ImportConfig partConfig = new ImportConfig(config);
+            partConfig.inputFile = outputFile.getPath();
+            partConfig.outputDirName = outputFile.getName().substring(0, outputFile.getName().indexOf('.'));
+            partConfig.outputFileName = tool.mOutputFileNames.get(file);
+            ToolImport.run(partConfig);
         }
     }
 

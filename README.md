@@ -36,7 +36,7 @@ params: -e <project dir> [-o <output file>] [--additional-resources <list of add
 ## Importing
 
 `
-params: -i <input file> [-s <splitting config file>] [-m <mapping file>]
+params: -i <input file> [-s <splitting config file>] [-m <mapping file>] [--escaping-config <escaping config file>]
 `
 
 **input file** - name of the Excel file for importing into the project

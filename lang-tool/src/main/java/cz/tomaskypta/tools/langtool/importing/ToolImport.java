@@ -1,4 +1,4 @@
-package cz.tomaskypta.tools.langtool;
+package cz.tomaskypta.tools.langtool.importing;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -16,6 +16,8 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import cz.tomaskypta.tools.langtool.util.EscapingUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -30,7 +32,7 @@ public class ToolImport {
     private File outResDir;
     private PrintStream out;
     private HashMap<String, String> mMapping;
-    private String mOutputFileName;
+    private ImportConfig mConfig;
 
     public ToolImport(PrintStream out) throws ParserConfigurationException {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -38,53 +40,39 @@ public class ToolImport {
         this.out = out == null ? System.out : out;
     }
 
-    public static void main(String[] args) throws IOException, ParserConfigurationException, TransformerException {
-        if (args == null || args.length == 0) {
-            System.out.println("File name is missed");
-            return;
-        }
-        run(args[0]);
-    }
-
-    public static void run(String input) throws IOException, ParserConfigurationException, TransformerException {
-        run(input, null, null);
-    }
-
-    public static void run(String input, String mappingFile, String outputFileName) throws IOException,
-        ParserConfigurationException,
-        TransformerException {
-        run(input, null, mappingFile, outputFileName);
-    }
-
-    public static void run(String input, String outputName, String mappingFile,
-                           String outputFileName) throws IOException,
-        ParserConfigurationException, TransformerException {
-        if (input == null || "".equals(input)) {
-            System.out.println("File name is missed");
+    public static void run(ImportConfig config) throws IOException, ParserConfigurationException, TransformerException {
+        if (config == null) {
+            System.err.println("Cannot import, missing config");
             return;
         }
 
-        HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(new File(input)));
+        if (StringUtils.isEmpty(config.inputFile)) {
+            System.err.println("Cannot import, missing input file name");
+            return;
+        }
+
+        HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(new File(config.inputFile)));
         HSSFSheet sheet = wb.getSheetAt(0);
 
         HSSFSheet sheetMapping = null;
-        if (mappingFile != null) {
-            HSSFWorkbook wbMapping = new HSSFWorkbook(new FileInputStream(new File(mappingFile)));
+        if (!StringUtils.isEmpty(config.mappingFile)) {
+            HSSFWorkbook wbMapping = new HSSFWorkbook(new FileInputStream(new File(config.mappingFile)));
             sheetMapping = wbMapping.getSheetAt(0);
         }
 
-        if (outputName == null || "".equals(outputName)) {
-            outputName = sheet.getSheetName();
+        String outputDirName = config.outputDirName;
+        if (StringUtils.isEmpty(outputDirName)) {
+            outputDirName = sheet.getSheetName();
         }
 
-        if (outputFileName == null) {
-            outputFileName = "strings.xml";
+        if (config.outputFileName == null) {
+            config.outputFileName = "strings.xml";
         }
 
         ToolImport tool = new ToolImport(null);
-        tool.outResDir = new File("out/" + outputName + "/res");
+        tool.mConfig = config;
+        tool.outResDir = new File("out/" + outputDirName + "/res");
         tool.outResDir.mkdirs();
-        tool.mOutputFileName = outputFileName;
         tool.prepareMapping(sheetMapping);
         tool.parse(sheet);
     }
@@ -187,6 +175,11 @@ public class ToolImport {
                 }
                 Element item = dom.createElement("item");
                 item.setAttribute("quantity", quantity);
+
+
+                if (mConfig.escapeKey(key)) {
+                    value = EscapingUtils.escape(value);
+                }
                 item.setTextContent(value);
 
                 pluralsNode.appendChild(item);
@@ -211,6 +204,10 @@ public class ToolImport {
                     stringArrayNode.setAttribute("name", arrayName);
                 }
                 Element item = dom.createElement("item");
+
+                if (mConfig.escapeKey(key)) {
+                    value = EscapingUtils.escape(value);
+                }
                 item.setTextContent(value);
 
                 stringArrayNode.appendChild(item);
@@ -230,6 +227,10 @@ public class ToolImport {
                 } else {
                     Element node = dom.createElement("string");
                     node.setAttribute("name", key);
+
+                    if (mConfig.escapeKey(key)) {
+                        value = EscapingUtils.escape(value);
+                    }
                     node.setTextContent(value);
                     root.appendChild(node);
                 }
@@ -260,7 +261,7 @@ public class ToolImport {
         transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 
         DOMSource source = new DOMSource(doc);
-        StreamResult result = new StreamResult(new File(dir, mOutputFileName));
+        StreamResult result = new StreamResult(new File(dir, mConfig.outputFileName));
 
         transformer.transform(source, result);
     }

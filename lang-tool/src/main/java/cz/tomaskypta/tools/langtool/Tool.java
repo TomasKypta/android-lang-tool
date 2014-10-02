@@ -7,6 +7,11 @@ import javax.xml.transform.TransformerException;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
+import cz.tomaskypta.tools.langtool.exporting.ToolExport;
+import cz.tomaskypta.tools.langtool.importing.ImportConfig;
+import cz.tomaskypta.tools.langtool.importing.ToolImport;
+import cz.tomaskypta.tools.langtool.importing.splitting.SplittingConfig;
+import cz.tomaskypta.tools.langtool.importing.splitting.ToolImportSplitter;
 import org.xml.sax.SAXException;
 
 public class Tool {
@@ -26,6 +31,10 @@ public class Tool {
         String mappingFile;
         @Parameter(names = "-s", description = "Splitting config file for import")
         String splittingConfigFile;
+//        @Parameter(names = "--escapeAll", description = "Escape strings")
+//        boolean escape;
+        @Parameter(names = "--escaping-config", description = "Escaping config for specifing keys to escapeAll")
+        String escapingConfigFile;
     }
 
     public static void main(String[] args) throws IOException, ParserConfigurationException, TransformerException, SAXException {
@@ -50,9 +59,27 @@ public class Tool {
             // importing
             if (parsedArgs.splittingConfigFile != null) {
                 // splitting
-                ToolImportSplitter.run(parsedArgs.importFile, parsedArgs.splittingConfigFile, parsedArgs.mappingFile);
+
+                SplittingConfig config = new SplittingConfig();
+//                config.escapeAll = parsedArgs.escape;
+                config.inputFile = parsedArgs.importFile;
+                config.mappingFile = parsedArgs.mappingFile;
+                config.outputDirName = null;
+                config.outputFileName = null;
+                config.splittingConfigFile = parsedArgs.splittingConfigFile;
+                config.setEscapingConfig(parsedArgs.escapingConfigFile);
+
+                ToolImportSplitter.run(config);
             } else {
-                ToolImport.run(parsedArgs.importFile, parsedArgs.mappingFile, null);
+                ImportConfig config = new ImportConfig();
+//                config.escapeAll = parsedArgs.escape;
+                config.inputFile = parsedArgs.importFile;
+                config.mappingFile = parsedArgs.mappingFile;
+                config.outputDirName = null;
+                config.outputFileName = null;
+                config.setEscapingConfig(parsedArgs.escapingConfigFile);
+
+                ToolImport.run(config);
             }
         } else {
             printHelp();
@@ -63,6 +90,6 @@ public class Tool {
         System.out.println("commands format:");
         System.out.println("\texport: -e <project dir> [-o <output file>] [--additional-resources <colon separated " +
             "list of additional resources>]");
-        System.out.println("\timport: -i <input file> [-s <splitting config>] [-m <mapping file>]");
+        System.out.println("\timport: -i <input file> [-s <splitting config>] [-m <mapping file>] [--escaping-config <escaping config file>]");
     }
 }

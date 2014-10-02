@@ -1,4 +1,4 @@
-package cz.tomaskypta.tools.langtool;
+package cz.tomaskypta.tools.langtool.exporting;
 
 import java.io.*;
 import java.util.*;
@@ -35,14 +35,6 @@ public class ToolExport {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         builder = dbf.newDocumentBuilder();
         this.out = out == null ? System.out : out;
-    }
-
-    public static void main(String[] args) throws SAXException, IOException, ParserConfigurationException {
-        if (args == null || args.length == 0) {
-            System.out.println("Project dir is missed");
-            return;
-        }
-        run(null, args[0], args.length > 1 ? args[1] : null);
     }
 
     public static void run(String projectDir, String outputFile, String extraResources) throws SAXException,

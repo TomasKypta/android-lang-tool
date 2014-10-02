@@ -32,8 +32,8 @@ public class Tool {
         @Parameter(names = "-s", description = "Splitting config file for import")
         String splittingConfigFile;
 //        @Parameter(names = "--escapeAll", description = "Escape strings")
-//        boolean escape;
-        @Parameter(names = "--escaping-config", description = "Escaping config for specifing keys to escape when " +
+//        boolean escapeWithQuotes;
+        @Parameter(names = "--escaping-config", description = "Escaping config for specifing keys to escapeWithQuotes when " +
             "importing")
         String escapingConfigFile;
         @Parameter(names = "--unescape-first", description = "For unescaping string when  importing. Happend " +
@@ -63,7 +63,7 @@ public class Tool {
             ToolExport.run(parsedArgs.exportProject, parsedArgs.outputFile, parsedArgs.additionalResources);
         } else if (parsedArgs.importFile != null) {
             SplittingConfig config = new SplittingConfig();
-//                config.escapeAll = parsedArgs.escape;
+//                config.escapeAll = parsedArgs.escapeWithQuotes;
             config.inputFile = parsedArgs.importFile;
             config.mappingFile = parsedArgs.mappingFile;
             config.outputDirName = null;

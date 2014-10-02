@@ -180,12 +180,7 @@ public class ToolImport {
                 Element item = dom.createElement("item");
                 item.setAttribute("quantity", quantity);
 
-                if (mConfig.unescapeFirst) {
-                    value = EscapingUtils.unescapeQuotes(value);
-                }
-                if (mConfig.isEscapedKey(key)) {
-                    value = EscapingUtils.escape(value);
-                }
+                value = prepareOutputValue(key, value);
                 item.setTextContent(value);
 
                 pluralsNode.appendChild(item);
@@ -211,12 +206,7 @@ public class ToolImport {
                 }
                 Element item = dom.createElement("item");
 
-                if (mConfig.unescapeFirst) {
-                    value = EscapingUtils.unescapeQuotes(value);
-                }
-                if (mConfig.isEscapedKey(key)) {
-                    value = EscapingUtils.escape(value);
-                }
+                value = prepareOutputValue(key, value);
                 item.setTextContent(value);
 
                 stringArrayNode.appendChild(item);
@@ -237,12 +227,7 @@ public class ToolImport {
                     Element node = dom.createElement("string");
                     node.setAttribute("name", key);
 
-                    if (mConfig.unescapeFirst) {
-                        value = EscapingUtils.unescapeQuotes(value);
-                    }
-                    if (mConfig.isEscapedKey(key)) {
-                        value = EscapingUtils.escape(value);
-                    }
+                    value = prepareOutputValue(key, value);
                     node.setTextContent(value);
                     root.appendChild(node);
                 }
@@ -251,6 +236,18 @@ public class ToolImport {
         }
 
         save(dom, lang);
+    }
+
+    private String prepareOutputValue(String key, String value) {
+        if (mConfig.unescapeFirst) {
+            value = EscapingUtils.unescapeQuotes(value);
+        }
+        if (mConfig.isEscapedKey(key)) {
+            value = EscapingUtils.escapeWithQuotes(value);
+        } else {
+            value = EscapingUtils.escapeWithBackslash(value);
+        }
+        return value;
     }
 
     private static void addEmptyKeyValue(Document dom, Element root, String key) {

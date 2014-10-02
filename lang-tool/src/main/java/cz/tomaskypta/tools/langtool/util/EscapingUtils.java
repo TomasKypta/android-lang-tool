@@ -1,12 +1,21 @@
 package cz.tomaskypta.tools.langtool.util;
 
+import java.util.regex.Pattern;
+
 /**
  * Created by tomas on 02.10.14.
  */
 public class EscapingUtils {
 
-    public static String escape(String value) {
+    private static final Pattern escapingPattern = Pattern.compile("([^\\\\])'");
+    private static final String replacement = "$1\\\\'";
+
+    public static String escapeWithQuotes(String value) {
         return '"' + value + '"';
+    }
+
+    public static String escapeWithBackslash(String value) {
+        return escapingPattern.matcher(value).replaceAll(replacement);
     }
 
     public static String unescapeQuotes(String value) {

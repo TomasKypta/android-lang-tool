@@ -15,6 +15,22 @@
     </description>
     <url>https://github.com/tomik-dev/android-lang-tool</url>
 
+    <licenses>
+        <license>
+            <name>Apache 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Tomáš Kypta</name>
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
+    </developers>
+
     <scm>
         <connection>scm:git:https://github.com/tomik-dev/android-lang-tool.git</connection>
         <developerConnection>scm:git:https://github.com/tomik-dev/android-lang-tool.git</developerConnection>

@@ -3,7 +3,7 @@ package cz.tomaskypta.tools.langtool.util;
 import java.util.regex.Pattern;
 
 /**
- * Created by tomas on 02.10.14.
+ * Created by Tomáš Kypta on 02.10.14.
  */
 public class EscapingUtils {
 

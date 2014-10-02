@@ -8,12 +8,13 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import cz.tomaskypta.tools.langtool.CommandlineArguments;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
 
 /**
- * Created by tomas on 02.10.14.
+ * Created by Tomáš Kypta on 02.10.14.
  */
 public class ImportConfig {
 
@@ -43,6 +44,17 @@ public class ImportConfig {
         this.unescapeFirst = other.unescapeFirst;
         this.ignoreListFile = other.ignoreListFile;
         this.ignoredSet = new HashSet<String>(other.ignoredSet);
+    }
+
+    public ImportConfig(CommandlineArguments args) {
+        this.inputFile = args.getImportFile();
+        this.mappingFile = args.getMappingFile();
+        // TODO
+        this.outputDirName = null;
+        this.outputFileName = null;
+        this.setEscapingConfig(args.getEscapingConfigFile());
+        this.unescapeFirst = args.isUnescapeFirst();
+        this.setIgnoredList(args.getIgnoreListFile());
     }
 
     public Boolean isEscapedKey(String key) {

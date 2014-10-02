@@ -6,6 +6,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -25,7 +26,8 @@ public class ToolExport {
     private String project;
     private Map<String, Integer> keysIndex;
     private PrintStream out;
-    private List<String> sAllowedFiles = new ArrayList<String>();
+    private ExportConfig mConfig;
+    private Set<String> sAllowedFiles = new HashSet<String>();
 
     {
         sAllowedFiles.add("strings.xml");
@@ -37,34 +39,26 @@ public class ToolExport {
         this.out = out == null ? System.out : out;
     }
 
-    public static void run(String projectDir, String outputFile, String extraResources) throws SAXException,
+    public static void run(ExportConfig config) throws SAXException,
         IOException, ParserConfigurationException {
-        run(null, projectDir, outputFile, extraResources);
+        run(null, config);
     }
 
-    public static void run(PrintStream out, String projectDir, String outputFile, String extraResources) throws SAXException, IOException, ParserConfigurationException {
+    public static void run(PrintStream out, ExportConfig config) throws SAXException, IOException, ParserConfigurationException {
         ToolExport tool = new ToolExport(out);
-        if (projectDir == null || "".equals(projectDir)) {
-            tool.out.println("Project dir is missed");
+        if (StringUtils.isEmpty(config.inputExportProject)) {
+            tool.out.println("Cannot export, missing config");
             return;
         }
-        File project = new File(projectDir);
-        tool.outExcelFile = new File(outputFile != null ? outputFile : "exported_strings_" + System.currentTimeMillis() + ".xls");
+        File project = new File(config.inputExportProject);
+        if (StringUtils.isEmpty(config.outputFile)) {
+            config.outputFile = "exported_strings_" + System.currentTimeMillis() + ".xls";
+        }
+        tool.outExcelFile = new File(config.outputFile);
         tool.project = project.getName();
-        tool.parseExtraResources(extraResources);
+        tool.mConfig = config;
+        tool.sAllowedFiles.addAll(config.additionalResources);
         tool.export(project);
-    }
-
-    private void parseExtraResources(String extraResources) {
-        if (extraResources == null) {
-            return;
-        }
-        for (String resName : extraResources.split(":")) {
-            if (!resName.endsWith(".xml")) {
-                resName = resName + ".xml";
-            }
-            sAllowedFiles.add(resName);
-        }
     }
 
     private void export(File project) throws SAXException, IOException {

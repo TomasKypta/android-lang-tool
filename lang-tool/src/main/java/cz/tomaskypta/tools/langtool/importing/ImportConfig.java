@@ -24,6 +24,7 @@ public class ImportConfig {
     public String outputFileName;
     public String escapingConfigFile;
     private Set<String> escapedSet;
+    public boolean unescapeFirst;
 
     public ImportConfig() {
         this.escapedSet = new HashSet<String>();
@@ -36,6 +37,7 @@ public class ImportConfig {
         this.outputDirName = other.outputDirName;
         this.outputFileName = other.outputFileName;
         this.escapedSet = new HashSet<String>(other.escapedSet);
+        this.unescapeFirst = other.unescapeFirst;
     }
 
     public Boolean escapeKey(String key) {

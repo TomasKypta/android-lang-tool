@@ -36,13 +36,18 @@ params: -e <project dir> [-o <output file>] [--additional-resources <list of add
 ## Importing
 
 `
-params: -i <input file> [-s <splitting config file>] [-m <mapping file>] [--escaping-config <escaping config file>]
+params: -i <input file> [-s <splitting config file>] [-m <mapping file>] [--escaping-config <escaping config file>] 
+[--unescape-first]
 `
 
 **input file** - name of the Excel file for importing into the project
 **splitting config file** - Excel file containing splitting info
 **mapping file** - Optional file for mapping resource qualifier into another. Typically for omitting country 
 specifier (e.g. convert 'cs-rCZ' into 'cs'). 
+**escaping config file** - Optional file for defining string keys that should be escaped (with quotes) in the final 
+output.
+**unescape-first** - Optional flag to denote that we want to unescape the strings before importing (and before 
+optional escaping).
 
 ### Format of splitting configuration file
 

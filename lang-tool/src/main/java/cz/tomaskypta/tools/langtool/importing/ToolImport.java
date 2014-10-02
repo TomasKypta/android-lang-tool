@@ -176,7 +176,9 @@ public class ToolImport {
                 Element item = dom.createElement("item");
                 item.setAttribute("quantity", quantity);
 
-
+                if (mConfig.unescapeFirst) {
+                    value = EscapingUtils.unescapeQuotes(value);
+                }
                 if (mConfig.escapeKey(key)) {
                     value = EscapingUtils.escape(value);
                 }
@@ -205,6 +207,9 @@ public class ToolImport {
                 }
                 Element item = dom.createElement("item");
 
+                if (mConfig.unescapeFirst) {
+                    value = EscapingUtils.unescapeQuotes(value);
+                }
                 if (mConfig.escapeKey(key)) {
                     value = EscapingUtils.escape(value);
                 }
@@ -228,6 +233,9 @@ public class ToolImport {
                     Element node = dom.createElement("string");
                     node.setAttribute("name", key);
 
+                    if (mConfig.unescapeFirst) {
+                        value = EscapingUtils.unescapeQuotes(value);
+                    }
                     if (mConfig.escapeKey(key)) {
                         value = EscapingUtils.escape(value);
                     }

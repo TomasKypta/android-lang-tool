@@ -52,7 +52,7 @@ public class Tool {
                 // splitting
                 ToolImportSplitter.run(parsedArgs.importFile, parsedArgs.splittingConfigFile, parsedArgs.mappingFile);
             } else {
-                ToolImport.run(parsedArgs.importFile, parsedArgs.mappingFile);
+                ToolImport.run(parsedArgs.importFile, parsedArgs.mappingFile, null);
             }
         } else {
             printHelp();

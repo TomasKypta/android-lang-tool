@@ -270,6 +270,9 @@ public class ToolExport {
                     continue;
                 }
                 String key = item.getAttributes().getNamedItem("name").getNodeValue();
+                if (mConfig.isIgnoredKey(key)) {
+                    continue;
+                }
                 keys.put(key, rowIndex);
 
                 HSSFRow row = sheet.createRow(rowIndex++);
@@ -283,6 +286,9 @@ public class ToolExport {
                 cell.setCellValue(item.getTextContent());
             } else if ("plurals".equals(item.getNodeName())) {
                 String key = item.getAttributes().getNamedItem("name").getNodeValue();
+                if (mConfig.isIgnoredKey(key)) {
+                    continue;
+                }
                 String plurarName = key;
 
                 HSSFRow row = sheet.createRow(rowIndex++);
@@ -310,6 +316,9 @@ public class ToolExport {
                 }
             } else if ("string-array".equals(item.getNodeName())) {
                 String key = item.getAttributes().getNamedItem("name").getNodeValue();
+                if (mConfig.isIgnoredKey(key)) {
+                    continue;
+                }
                 NodeList arrayItems = item.getChildNodes();
                 for (int j = 0, k = 0; j < arrayItems.getLength(); j++) {
                     Node arrayItem = arrayItems.item(j);

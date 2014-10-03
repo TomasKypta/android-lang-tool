@@ -30,6 +30,8 @@ public class CommandlineArguments {
     boolean unescapeFirst;
     @Parameter(names = "--ignore-list", description = "List of ignored keys.")
     String ignoreListFile;
+//    @Parameter(names = "--all-plurals-quantities", description = "Prepare rows for all quantities.")
+//    boolean allPluralsQuantities;
 
 
     public String getExportProject() {

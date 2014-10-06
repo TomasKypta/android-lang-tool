@@ -52,6 +52,7 @@ public class ImportConfig extends CommonConfig {
         // TODO
         this.outputDirName = null;
         this.outputFileName = null;
+        this.escapedSet = new HashSet<String>();
         this.setEscapingConfig(args.getEscapingConfigFile());
         this.unescapeFirst = args.isUnescapeFirst();
 

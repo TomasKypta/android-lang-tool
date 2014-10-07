@@ -21,15 +21,29 @@ public class ImportConfig extends CommonConfig {
     static class Transformation {
         String regex;
         String transformation;
+        Set<String> languages;
 
         Transformation(String regex, String transformation) {
             this.regex = regex;
             this.transformation = transformation;
+            this.languages = null;
         }
 
-        String apply(String str) {
+        Transformation(String regex, String transformation, String languagesList) {
+            this.regex = regex;
+            this.transformation = transformation;
+            if (languagesList != null) {
+                String[] tmpLangs = languagesList.split(",");
+                languages = new HashSet<String>(Arrays.asList(tmpLangs));
+            }
+        }
+
+        String apply(String str, String lang) {
             if (str == null) {
                 return null;
+            }
+            if (languages != null && !languages.contains(lang)) {
+                return str;
             }
             return str.replaceFirst(regex, transformation);
         }
@@ -45,12 +59,15 @@ public class ImportConfig extends CommonConfig {
     public boolean unescapeFirst;
     public String extraTransformations;
     private Map<String, Transformation> transformationsMap;
+    public String mixedContent;
+    private Set<String> mixedContentSet;
 
 
     public ImportConfig() {
         super();
         this.escapedSet = new HashSet<String>();
         transformationsMap = new HashMap<String, Transformation>();
+        mixedContentSet = new HashSet<String>();
     }
 
     public ImportConfig(ImportConfig other) {
@@ -64,6 +81,8 @@ public class ImportConfig extends CommonConfig {
         this.unescapeFirst = other.unescapeFirst;
         this.transformationsMap = new HashMap<String, Transformation>(other.transformationsMap);
         this.extraTransformations = other.extraTransformations;
+        this.mixedContent = other.mixedContent;
+        this.mixedContentSet = new HashSet<String>(other.mixedContentSet);
     }
 
     public ImportConfig(CommandlineArguments args) {
@@ -76,6 +95,7 @@ public class ImportConfig extends CommonConfig {
         this.setEscapingConfig(args.getEscapingConfigFile());
         this.unescapeFirst = args.isUnescapeFirst();
         this.setTransformations(args.getExtraTransformations());
+        this.setMixedContent(args.getMixedContent());
     }
 
     public Boolean isEscapedKey(String key) {
@@ -128,8 +148,38 @@ public class ImportConfig extends CommonConfig {
                     return;
                 }
                 Transformation transformation = new Transformation(row.getCell(1).getStringCellValue(),
-                    row.getCell(2).getStringCellValue());
+                    row.getCell(2).getStringCellValue(), row.getCell(3) != null ? row.getCell(3).getStringCellValue()
+                    : null);
                 transformationsMap.put(row.getCell(0).getStringCellValue(), transformation);
+            }
+        } catch (FileNotFoundException e) {
+
+        } catch (IOException e) {
+
+        }
+    }
+
+    public boolean isMixedContent(String key) {
+        return mixedContentSet.contains(key);
+    }
+
+    public void setMixedContent(String mixedContent) {
+        this.mixedContentSet = new HashSet<String>();
+        this.mixedContent = mixedContent;
+        if (StringUtils.isEmpty(mixedContent)) {
+            return;
+        }
+
+        try {
+            HSSFWorkbook wbEscaping = new HSSFWorkbook(new FileInputStream(new File(this.mixedContent)));
+            HSSFSheet sheetEscaping = wbEscaping.getSheetAt(0);
+            Iterator<Row> it = sheetEscaping.rowIterator();
+            while (it.hasNext()) {
+                Row row = it.next();
+                if (row == null || row.getCell(0) == null) {
+                    return;
+                }
+                mixedContentSet.add(row.getCell(0).getStringCellValue());
             }
         } catch (FileNotFoundException e) {
 

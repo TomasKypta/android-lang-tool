@@ -179,7 +179,7 @@ public class ToolImport {
                     pluralsNode = dom.createElement("plurals");
                     pluralsNode.setAttribute("name", plurarName);
                 }
-                value = prepareOutputValue(key, value);
+                value = prepareOutputValue(lang, key, value);
                 addContent(dom, pluralsNode, value, "item", null, quantity);
 
                 root.appendChild(pluralsNode);
@@ -202,7 +202,7 @@ public class ToolImport {
                     stringArrayNode.setAttribute("name", arrayName);
                 }
 
-                value = prepareOutputValue(key, value);
+                value = prepareOutputValue(lang, key, value);
                 addContent(dom, stringArrayNode, value, "item", null, null);
 
                 root.appendChild(stringArrayNode);
@@ -219,7 +219,7 @@ public class ToolImport {
                     addEmptyKeyValue(dom, root, key);
                 } else {
 
-                    value = prepareOutputValue(key, value);
+                    value = prepareOutputValue(lang, key, value);
 
                     addContent(dom, root, value, "string", key, null);
                 }
@@ -230,7 +230,12 @@ public class ToolImport {
         save(dom, lang);
     }
 
-    private void addContent(Document dom, Element root, String value, String nodeName, String name, String quantity) {
+    private void addContent(Document dom, Element root, String value, String nodeName, String key, String quantity) {
+        if (!mConfig.isMixedContent(key)) {
+            addContentAsString(dom, root, value, nodeName, key, quantity);
+            return;
+        }
+
         try {
             DocumentBuilder db = DocumentBuilderFactory
                 .newInstance()
@@ -256,8 +261,8 @@ public class ToolImport {
             Element content = db
                 .parse(new ByteArrayInputStream(("<" + nodeName + ">" + value + "</" + nodeName + ">").getBytes()))
                 .getDocumentElement();
-            if (name != null) {
-                content.setAttribute("name", name);
+            if (key != null) {
+                content.setAttribute("name", key);
             }
             if (quantity != null) {
                 content.setAttribute("quantity", quantity);
@@ -265,22 +270,26 @@ public class ToolImport {
             Node tmp = dom.importNode(content, true);
             root.appendChild(tmp);
         } catch (Exception e) {
-            Element node = dom.createElement(nodeName);
-            if (name != null) {
-                node.setAttribute("name", name);
-            }
-            if (quantity != null) {
-                node.setAttribute("quantity", quantity);
-            }
-            node.setTextContent(value);
-            root.appendChild(node);
+            addContentAsString(dom, root, value, nodeName, key, quantity);
         }
     }
 
-    private String prepareOutputValue(String key, String value) {
+    private void addContentAsString(Document dom, Element root, String value, String nodeName, String key, String quantity) {
+        Element node = dom.createElement(nodeName);
+        if (key != null) {
+            node.setAttribute("name", key);
+        }
+        if (quantity != null) {
+            node.setAttribute("quantity", quantity);
+        }
+        node.setTextContent(value);
+        root.appendChild(node);
+    }
+
+    private String prepareOutputValue(String lang, String key, String value) {
         ImportConfig.Transformation tranformation = mConfig.getKeyTransformation(key);
         if (tranformation != null) {
-            value = tranformation.apply(value);
+            value = tranformation.apply(value, lang);
         }
         if (mConfig.unescapeFirst) {
             value = EscapingUtils.unescapeQuotes(value);

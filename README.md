@@ -39,6 +39,7 @@ params: -e <project dir> [-o <output file>] [--additional-resources <list of add
 `
 params: -i <input file> [-s <splitting config file>] [-m <mapping file>] [--escaping-config <escaping config file>] 
 [--unescape-first] [--ignore-list <ingored list file>] [--extra-transformations <transformations config file>]
+[--mixed-content <mixed list file>]
 `
 
 **input file** - name of the Excel file for importing into the project
@@ -51,6 +52,7 @@ output.
 optional escaping).
 **ingored list file** - Optional file for defining keys that are ignored.
 **transformations config file** - Optional file for defining import tranformations on keys.
+**mixed list file** - Optional file containing keys which will be handled as mixed xml content when importing.
 
 ### Format of splitting configuration file
 
@@ -76,3 +78,9 @@ optional escaping).
 * The first column contains string keys
 * The second column contains matching regex (can contain capture groups) as defined by Java Pattern documentation
 * The third column contains replacement (can contain capture groups)
+* The optional fourth column can constain comma separated list of allowed languages (the transformation is applied 
+only for these languages).
+
+### Format of mixed list file
+
+* The first column contains string keys

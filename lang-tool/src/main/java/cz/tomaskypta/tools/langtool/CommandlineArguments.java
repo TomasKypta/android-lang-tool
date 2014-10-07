@@ -35,6 +35,8 @@ public class CommandlineArguments {
     @Parameter(names = "--extra-transformations", description = "Extra transformations used when importing " +
         "strings.")
     String extraTransformations;
+    @Parameter(names = "--mixed-content", description = "List of mixed content keys.")
+    String mixedContent;
 
     public String getExportProject() {
         return exportProject;
@@ -74,5 +76,9 @@ public class CommandlineArguments {
 
     public String getExtraTransformations() {
         return extraTransformations;
+    }
+
+    public String getMixedContent() {
+        return mixedContent;
     }
 }

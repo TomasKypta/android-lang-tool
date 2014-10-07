@@ -1,9 +1,6 @@
 package cz.tomaskypta.tools.langtool.importing;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.PrintStream;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Iterator;
 import javax.xml.parsers.DocumentBuilder;
@@ -25,6 +22,11 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.Text;
+import org.xml.sax.ErrorHandler;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
 public class ToolImport {
 
@@ -177,13 +179,8 @@ public class ToolImport {
                     pluralsNode = dom.createElement("plurals");
                     pluralsNode.setAttribute("name", plurarName);
                 }
-                Element item = dom.createElement("item");
-                item.setAttribute("quantity", quantity);
-
                 value = prepareOutputValue(key, value);
-                item.setTextContent(value);
-
-                pluralsNode.appendChild(item);
+                addContent(dom, pluralsNode, value, "item", null, quantity);
 
                 root.appendChild(pluralsNode);
             } else if (arrayIndex >= 0) {
@@ -204,12 +201,9 @@ public class ToolImport {
                     stringArrayNode = dom.createElement("string-array");
                     stringArrayNode.setAttribute("name", arrayName);
                 }
-                Element item = dom.createElement("item");
 
                 value = prepareOutputValue(key, value);
-                item.setTextContent(value);
-
-                stringArrayNode.appendChild(item);
+                addContent(dom, stringArrayNode, value, "item", null, null);
 
                 root.appendChild(stringArrayNode);
             } else {
@@ -224,12 +218,10 @@ public class ToolImport {
                 if (value.isEmpty()) {
                     addEmptyKeyValue(dom, root, key);
                 } else {
-                    Element node = dom.createElement("string");
-                    node.setAttribute("name", key);
 
                     value = prepareOutputValue(key, value);
-                    node.setTextContent(value);
-                    root.appendChild(node);
+
+                    addContent(dom, root, value, "string", key, null);
                 }
             }
 
@@ -238,7 +230,58 @@ public class ToolImport {
         save(dom, lang);
     }
 
+    private void addContent(Document dom, Element root, String value, String nodeName, String name, String quantity) {
+        try {
+            DocumentBuilder db = DocumentBuilderFactory
+                .newInstance()
+                .newDocumentBuilder();
+            // TODO improve
+            // currently ignoring errors - there were irrelevant messages about '&'
+            db.setErrorHandler(new ErrorHandler() {
+                @Override
+                public void warning(SAXParseException exception) throws SAXException {
+
+                }
+
+                @Override
+                public void error(SAXParseException exception) throws SAXException {
+
+                }
+
+                @Override
+                public void fatalError(SAXParseException exception) throws SAXException {
+
+                }
+            });
+            Element content = db
+                .parse(new ByteArrayInputStream(("<" + nodeName + ">" + value + "</" + nodeName + ">").getBytes()))
+                .getDocumentElement();
+            if (name != null) {
+                content.setAttribute("name", name);
+            }
+            if (quantity != null) {
+                content.setAttribute("quantity", quantity);
+            }
+            Node tmp = dom.importNode(content, true);
+            root.appendChild(tmp);
+        } catch (Exception e) {
+            Element node = dom.createElement(nodeName);
+            if (name != null) {
+                node.setAttribute("name", name);
+            }
+            if (quantity != null) {
+                node.setAttribute("quantity", quantity);
+            }
+            node.setTextContent(value);
+            root.appendChild(node);
+        }
+    }
+
     private String prepareOutputValue(String key, String value) {
+        ImportConfig.Transformation tranformation = mConfig.getKeyTransformation(key);
+        if (tranformation != null) {
+            value = tranformation.apply(value);
+        }
         if (mConfig.unescapeFirst) {
             value = EscapingUtils.unescapeQuotes(value);
         }
@@ -274,5 +317,4 @@ public class ToolImport {
 
         transformer.transform(source, result);
     }
-
 }

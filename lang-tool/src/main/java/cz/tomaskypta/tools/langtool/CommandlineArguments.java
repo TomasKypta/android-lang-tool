@@ -32,7 +32,9 @@ public class CommandlineArguments {
     String ignoreListFile;
 //    @Parameter(names = "--all-plurals-quantities", description = "Prepare rows for all quantities.")
 //    boolean allPluralsQuantities;
-
+    @Parameter(names = "--extra-transformations", description = "Extra transformations used when importing " +
+        "strings.")
+    String extraTransformations;
 
     public String getExportProject() {
         return exportProject;
@@ -68,5 +70,9 @@ public class CommandlineArguments {
 
     public String getIgnoreListFile() {
         return ignoreListFile;
+    }
+
+    public String getExtraTransformations() {
+        return extraTransformations;
     }
 }

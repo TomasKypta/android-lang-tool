@@ -7,8 +7,8 @@ import java.util.regex.Pattern;
  */
 public class EscapingUtils {
 
-    private static final Pattern escapingPattern = Pattern.compile("([^\\\\])'");
-    private static final String replacement = "$1\\\\'";
+    private static final Pattern escapingPattern = Pattern.compile("([^\\\\])('|\")");
+    private static final String replacement = "$1\\\\$2";
 
     public static String escapeWithQuotes(String value) {
         return '"' + value + '"';

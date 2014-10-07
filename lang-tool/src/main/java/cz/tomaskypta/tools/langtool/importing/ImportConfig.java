@@ -4,12 +4,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 import cz.tomaskypta.tools.langtool.CommandlineArguments;
 import cz.tomaskypta.tools.langtool.CommonConfig;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
@@ -19,6 +18,23 @@ import org.apache.poi.ss.usermodel.Row;
  */
 public class ImportConfig extends CommonConfig {
 
+    static class Transformation {
+        String regex;
+        String transformation;
+
+        Transformation(String regex, String transformation) {
+            this.regex = regex;
+            this.transformation = transformation;
+        }
+
+        String apply(String str) {
+            if (str == null) {
+                return null;
+            }
+            return str.replaceFirst(regex, transformation);
+        }
+    }
+
     public boolean escapeAll;
     public String inputFile;
     public String mappingFile;
@@ -27,11 +43,14 @@ public class ImportConfig extends CommonConfig {
     public String escapingConfigFile;
     private Set<String> escapedSet;
     public boolean unescapeFirst;
+    public String extraTransformations;
+    private Map<String, Transformation> transformationsMap;
 
 
     public ImportConfig() {
         super();
         this.escapedSet = new HashSet<String>();
+        transformationsMap = new HashMap<String, Transformation>();
     }
 
     public ImportConfig(ImportConfig other) {
@@ -43,6 +62,8 @@ public class ImportConfig extends CommonConfig {
         this.outputFileName = other.outputFileName;
         this.escapedSet = new HashSet<String>(other.escapedSet);
         this.unescapeFirst = other.unescapeFirst;
+        this.transformationsMap = new HashMap<String, Transformation>(other.transformationsMap);
+        this.extraTransformations = other.extraTransformations;
     }
 
     public ImportConfig(CommandlineArguments args) {
@@ -52,10 +73,9 @@ public class ImportConfig extends CommonConfig {
         // TODO
         this.outputDirName = null;
         this.outputFileName = null;
-        this.escapedSet = new HashSet<String>();
         this.setEscapingConfig(args.getEscapingConfigFile());
         this.unescapeFirst = args.isUnescapeFirst();
-
+        this.setTransformations(args.getExtraTransformations());
     }
 
     public Boolean isEscapedKey(String key) {
@@ -63,11 +83,11 @@ public class ImportConfig extends CommonConfig {
     }
 
     public void setEscapingConfig(String escapingConfigFile) {
+        this.escapedSet = new HashSet<String>();
         this.escapingConfigFile = escapingConfigFile;
-        if (escapingConfigFile == null) {
+        if (StringUtils.isEmpty(escapingConfigFile)) {
             return;
         }
-        escapedSet.clear();
 
         try {
             HSSFWorkbook wbEscaping = new HSSFWorkbook(new FileInputStream(new File(this.escapingConfigFile)));
@@ -87,5 +107,34 @@ public class ImportConfig extends CommonConfig {
         }
     }
 
+    public Transformation getKeyTransformation(String key) {
+        return transformationsMap.get(key);
+    }
 
+    public void setTransformations(String extraImportTransformations) {
+        this.transformationsMap = new HashMap<String, Transformation>();
+        this.extraTransformations = extraImportTransformations;
+        if (StringUtils.isEmpty(extraImportTransformations)) {
+            return;
+        }
+
+        try {
+            HSSFWorkbook wbEscaping = new HSSFWorkbook(new FileInputStream(new File(this.extraTransformations)));
+            HSSFSheet sheetEscaping = wbEscaping.getSheetAt(0);
+            Iterator<Row> it = sheetEscaping.rowIterator();
+            while (it.hasNext()) {
+                Row row = it.next();
+                if (row == null || row.getCell(0) == null || row.getCell(1) == null || row.getCell(2) == null) {
+                    return;
+                }
+                Transformation transformation = new Transformation(row.getCell(1).getStringCellValue(),
+                    row.getCell(2).getStringCellValue());
+                transformationsMap.put(row.getCell(0).getStringCellValue(), transformation);
+            }
+        } catch (FileNotFoundException e) {
+
+        } catch (IOException e) {
+
+        }
+    }
 }

@@ -13,6 +13,7 @@ It's [AndroidLangTool](https://github.com/hamsterksu/AndroidLangTool) on steroid
 The tool exports Android string resources to Excel and imports them back to the project after translation.
 It scans Android project and exports strings, by default from strings.xml. Additional resources can be specified.
 All the resources are concatenated in a single Excel file.
+The tool allows many additional operations on the strings. See the command line arguments for more details.
 
 Xml comments are supported 
 Missing traslations have red background in the xls file.
@@ -37,7 +38,7 @@ params: -e <project dir> [-o <output file>] [--additional-resources <list of add
 
 `
 params: -i <input file> [-s <splitting config file>] [-m <mapping file>] [--escaping-config <escaping config file>] 
-[--unescape-first] [--ignore-list <ingored list file>]
+[--unescape-first] [--ignore-list <ingored list file>] [--extra-transformations <transformations config file>]
 `
 
 **input file** - name of the Excel file for importing into the project
@@ -48,7 +49,8 @@ specifier (e.g. convert 'cs-rCZ' into 'cs').
 output.
 **unescape-first** - Optional flag to denote that we want to unescape the strings before importing (and before 
 optional escaping).
-**ingored list file** - Optional flag to denote keys that are ignored.
+**ingored list file** - Optional file for defining keys that are ignored.
+**transformations config file** - Optional file for defining import tranformations on keys.
 
 ### Format of splitting configuration file
 
@@ -60,3 +62,17 @@ optional escaping).
 
 * The first column contains 'from value'
 * The second column contains 'to value'
+
+### Format of escaping config file
+
+* The first column contains string keys values of which will be escaped with quotes
+
+### Format of ingored list file
+
+* The first column contains string keys
+
+### Format of transformations config file
+
+* The first column contains string keys
+* The second column contains matching regex (can contain capture groups) as defined by Java Pattern documentation
+* The third column contains replacement (can contain capture groups)

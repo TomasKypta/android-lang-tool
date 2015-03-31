@@ -276,13 +276,24 @@ public class ToolImport {
 
     private void addContentAsString(Document dom, Element root, String value, String nodeName, String key, String quantity) {
         Element node = dom.createElement(nodeName);
+        ContentType type = ContentType.detect(key);
+
         if (key != null) {
+            int index = key.indexOf("!");
+            if (index != -1) {
+                key = key.substring(0, index);
+            }
             node.setAttribute("name", key);
         }
         if (quantity != null) {
             node.setAttribute("quantity", quantity);
         }
-        node.setTextContent(value);
+
+        if (type == ContentType.CDATA) {
+            node.appendChild(dom.createCDATASection(value));
+        } else {
+            node.setTextContent(value);
+        }
         root.appendChild(node);
     }
 

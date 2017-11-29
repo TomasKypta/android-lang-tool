@@ -130,6 +130,7 @@ public class ToolExport {
                 continue;
             }
             keys.putAll(exportDefLangToExcel(rowIndex, project, stringFile, getStrings(stringFile), outExcelFile));
+            rowIndex = keys.size() + 1;
         }
 
 
